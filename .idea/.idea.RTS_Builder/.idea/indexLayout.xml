@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="UserContentModel">
+    <attachedFolders>
+      <Path>Source/RTS_Builder/BuildingSystem/Private</Path>
+    </attachedFolders>
+    <explicitIncludes>
+      <Path>Source/RTS_Builder/BuildingSystem/Private</Path>
+    </explicitIncludes>
+    <explicitExcludes />
+  </component>
+</project>
