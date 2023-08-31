@@ -4,6 +4,7 @@
 #include "RTS_Builder/BuildingSystem/Public/BuildingManager.h"
 
 #include "RTS_Builder/GameManager.h"
+#include "RTS_Builder/BuildingSystem/BuilderFactory.h"
 #include "RTS_Builder/BuildingSystem/Public/BuilderWall.h"
 
 void UBuildingManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -30,22 +31,8 @@ void UBuildingManager::RenderBuildings()
 	}
 }
 
-void UBuildingManager::SelectBuilder(BuildingType::Type BuildingType)
+void UBuildingManager::CreateBuilder(FBuildingData& Data)
 {
-	switch (BuildingType)
-	{
-	case BuildingType::Static:
-		break;
-	case BuildingType::Region:
-		break;
-	case BuildingType::Road:
-		break;
-	case BuildingType::Wall:
-		Builder = NewObject<UBuilderWall>();
-		break;
-	case BuildingType::None:
-		break;
-	}
-	if (Builder)
-		Builder->Init(Cast<UGameManager>(GetGameInstance()),);
+	UBuilderFactory* BuilderFactory = NewObject<UBuilderFactory>(this);
+	Builder = BuilderFactory->CreateBuilder(Data);
 }
