@@ -16,11 +16,12 @@ class RTS_BUILDER_API ASplineBuilding : public ABuildingBase
 public:
 	ASplineBuilding();
 	virtual void OnClick(FVector& Point);
-	int32 GetClosestPoint(FVector& WorldPoint, USplineComponent* TargetSpline);
+	virtual int32 GetClosestPoint(FVector& WorldPoint, USplineComponent* TargetSpline);
 	TOptional<FVector> FindAttachmentPoint(FVector& WorldPoint, TArray<AActor*>& AttachmentActors);
+	virtual TOptional<FVector> FindAttachmentPoint(FVector& WorldPoint, TArray<AActor*>& AttachmentActors, FRotator& Rot);
 	virtual void BeginPlay() override;
-	bool AddSplinePoint(FVector& WorldPoint);
-	void RotatePoint(int32 Index, float Value);
+	virtual bool AddSplinePoint(FVector& WorldPoint);
+	virtual void RotatePoint(int32 Index, float Value);
 	void GenerateSplineMesh(int32 first, int32 last, UStaticMesh* Mesh);
 	void ClearSpline();
 	void ClearSplineMeshes();
@@ -29,7 +30,6 @@ public:
 	bool SnapSplineToLandscape(float Start, float End, float Interval, USplineComponent* SplineComp, TArray<FVector>& OutArray);
 	TArray<FVector> FindPathBetweenPoints(const FVector& StartCoord, const FVector& EndCoord, TArray<AActor*> AttachedActors);
 	virtual void Tick(float DeltaSeconds) override;
-
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USplineComponent* SplineComponent;
