@@ -7,7 +7,7 @@
 #include "RTS_Builder/GameManager.h"
 #include "RTS_Builder/RTSController.h"
 #include "RTS_Builder/BuildingSystem/Public/SplineBuilding.h"
-
+#include "RTS_Builder/BuildingSystem/Public/Wall.h"
 
 
 UBuilderWall::UBuilderWall()
@@ -17,8 +17,8 @@ UBuilderWall::UBuilderWall()
 void UBuilderWall::Init(UGameManager* Manager, FBuildingData& Data)
 {
 	Super::Init(Manager, Data);
-	ConstructBuilding();
 	BuildingData = Data;
+	ConstructBuilding();
 }
 
 
@@ -27,7 +27,7 @@ void UBuilderWall::ConstructBuilding()
 	if (Hit.bBlockingHit && GameManager)
 	{
 		FActorSpawnParameters ActorSpawnParameters;
-		CurrentBuilding = GameManager->GetWorld()->SpawnActor<ASplineBuilding>(BuildingData.BuildingClass->StaticClass(), Hit.Location, FRotator::ZeroRotator, ActorSpawnParameters);
+		CurrentBuilding = GameManager->GetWorld()->SpawnActor<AWall>(BuildingData.BuildingClass->StaticClass(), Hit.Location, FRotator::ZeroRotator, ActorSpawnParameters);
 		CurrentBuilding->SetActorTickEnabled(true);
 	}
 }
