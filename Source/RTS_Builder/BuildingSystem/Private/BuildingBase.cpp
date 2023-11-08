@@ -113,10 +113,6 @@ void ABuildingBase::OnRender()
 {
 }
 
-void ABuildingBase::Build()
-{
-}
-
 void ABuildingBase::Update(float DeltaSeconds, FHitResult& Hit)
 {
 	
@@ -130,6 +126,30 @@ void ABuildingBase::UpdateDuringBuilding(FVector Endloc, FHitResult& Hit)
 void ABuildingBase::StickToGrid(FVector& Location)
 {
 }
+
+bool ABuildingBase::CanBeBuilt()
+{
+	return true;
+}
+
+void ABuildingBase::SetGhostMaterial()
+{
+}
+
+void ABuildingBase::SetDefaultMaterial()
+{
+}
+
+void ABuildingBase::AssignAssets()
+{
+}
+
+void ABuildingBase::DestructBuilding(FHitResult& HitData, float size)
+{
+	if(HitData.GetActor())
+		HitData.GetActor()->Destroy();
+}
+
 
 APlayerController* ABuildingBase::GetPlayerController()
 {

@@ -12,6 +12,7 @@
 #include "LivingEntity.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "RTSController.generated.h"
 
 /**
@@ -57,7 +58,7 @@ public:
 	void Zoom(float AxisValue);
 	
 	UFUNCTION(BlueprintCallable)
-	bool CursorHit(ECollisionChannel CollisionChannel, TArray<AActor*> IgnoredActors, FHitResult& HitResult);
+	bool CursorHit(ECollisionChannel CollisionChannel, TArray<AActor*> IgnoredActors, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
 
 	UFUNCTION(BlueprintCallable)
 	void SetGhostBuilding(TSubclassOf<ABuildingBase> Building);

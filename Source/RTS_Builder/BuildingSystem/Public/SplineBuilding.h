@@ -6,6 +6,8 @@
 #include "BuildingBase.h"
 #include "SplineBuilding.generated.h"
 
+struct FAttachmentData;
+class ARoad;
 /**
  * 
  */
@@ -15,14 +17,15 @@ class RTS_BUILDER_API ASplineBuilding : public ABuildingBase
 	GENERATED_BODY()
 public:
 	ASplineBuilding();
+	int32 GetSplinePointsNum();
 	virtual void OnClick(FVector& Point);
 	virtual int32 GetClosestPoint(FVector& WorldPoint, USplineComponent* TargetSpline);
-	TOptional<FVector> FindAttachmentPoint(FVector& WorldPoint, TArray<AActor*>& AttachmentActors);
-	virtual TOptional<FVector> FindAttachmentPoint(FVector& WorldPoint, TArray<AActor*>& AttachmentActors, FRotator& Rot);
+	// TOptional<FVector> FindAttachmentPoint(FVector& WorldPoint, TArray<AActor*>& AttachmentActors);
+	virtual bool FindAttachmentPoint(FVector& WorldPoint, FAttachmentData& Data, FString type);
 	virtual void BeginPlay() override;
-	virtual bool AddSplinePoint(FVector& WorldPoint);
+	virtual bool AddSplinePoint(FVector& WorldPoint, bool bShouldStore);
 	virtual void RotatePoint(int32 Index, float Value);
-	void GenerateSplineMesh(int32 first, int32 last, UStaticMesh* Mesh);
+	virtual void GenerateSplineMesh(UStaticMesh* Mesh, bool bUseStoredMeshes);
 	void ClearSpline();
 	void ClearSplineMeshes();
 	virtual void Update(float DeltaSeconds, FHitResult& Hit) override;

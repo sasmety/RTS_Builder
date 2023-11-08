@@ -15,7 +15,7 @@ class RTS_BUILDER_API AWall : public ASplineBuilding
 {
 	GENERATED_BODY()
 public:
-	bool AddSplinePoint(FVector& WorldPoint) override;
+	bool AddSplinePoint(FVector& WorldPoint, bool bShouldStore) override;
 	void RotatePoint(int32 Index, float Value) override;
 	void BeginPlay() override;
 	void Update(float DeltaSeconds, FHitResult& Hit) override;

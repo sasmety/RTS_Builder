@@ -45,7 +45,6 @@ void ARTSController::BeginPlay()
 	if (GameManager)
 	{
 		GameManager->SetController(this);
-		GameManager->BuildingManager->SelectBuilder(BuildingType::Wall);
 	}
 	BuilderInterface = Cast<IMouseInterface>(GameManager);
 	GridManager = NewObject<UAStarGridActor>();
@@ -84,15 +83,7 @@ void ARTSController::Tick(float DeltaSeconds)
 	FHitResult Hit;
 	// CursorHit(ECC_Visibility, TArray<AActor*>(), Hit);
 
-	if (bIsBuildMode)
-	{
-		StickBuildingToGrid();
-		GEngine->AddOnScreenDebugMessage(21, 1, FColor::Green, FString::Printf(TEXT("Building Mode On")));
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(21, 1, FColor::Red, FString::Printf(TEXT("Building Mode Off")));
-	}
+	
 	Zoom(InputComponent->GetAxisValue(FName("ZoomKeyboard")));
 
 
@@ -111,13 +102,13 @@ void ARTSController::Tick(float DeltaSeconds)
 
 void ARTSController::KeyPressed(FKey Key)
 {
-	// if (GameManager)
-	// {
-	// 	for (IMouseInterface* InputObject : GameManager->GetInputObjects())
-	// 	{
-	// 		InputObject->KeyPressed(Key);
-	// 	} 
-	// }
+	if (GameManager)
+	{
+		for (IMouseInterface* InputObject : GameManager->GetInputObjects())
+		{
+			InputObject->KeyPressed(Key);
+		} 
+	}
 }
 
 void ARTSController::KeyReleased(FKey key)
@@ -232,14 +223,14 @@ void ARTSController::OnRightReleased()
 }
 
 
-bool ARTSController::CursorHit(ECollisionChannel CollisionChannel, TArray<AActor*> IgnoredActors, FHitResult& HitResult)
+bool ARTSController::CursorHit(ECollisionChannel CollisionChannel, TArray<AActor*> IgnoredActors, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
 {
 	FVector Loc, Dir;
 	FHitResult Hit;
 	FCollisionQueryParams CollisionParameters;
 	CollisionParameters.AddIgnoredActors(IgnoredActors);
 	DeprojectMousePositionToWorld(Loc, Dir);
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), Loc, Dir * 5000 + Loc, UEngineTypes::ConvertToTraceType(CollisionChannel), false, IgnoredActors, EDrawDebugTrace::ForDuration, Hit, true);
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), Loc, Dir * 5000 + Loc, UEngineTypes::ConvertToTraceType(CollisionChannel), false, IgnoredActors, EDrawDebugTrace::None, Hit, true);
 	// GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(CollisionChannel), false, Hit);
 	//GetWorld()->LineTraceSingleByChannel(Hit, Loc, Dir * 5000 + Loc, CollisionChannel, CollisionParameters);
 	

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BuildingBase.h"
+#include "Engine/DataTable.h"
 #include "RTS_Builder/MouseInterface.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "BuildingManager.generated.h"
@@ -27,33 +28,27 @@ namespace BuildingType
 	};
 }
 
-
-//
-// USTRUCT()
-// struct FBuildingCategory
-// {
-// 	GENERATED_BODY()
-// 	struct FBuildingData;
-// 	FName Name;
-// 	TArray<FBuildingData> Buildings;
-// };
-
-// struct FBuildingCategory;
-USTRUCT()
-struct FBuildingData
+USTRUCT(BlueprintType)
+struct FBuildingData : public FTableRowBase
 {
 	GENERATED_BODY()
 public:
+	UPROPERTY(BlueprintReadWrite)
 	FName Name;
+	UPROPERTY(BlueprintReadWrite)
 	TSubclassOf<ABuildingBase> BuildingClass;
+	UPROPERTY(BlueprintReadWrite)
 	TSubclassOf<UBuilderBase> BuilderClass;
+	UPROPERTY(BlueprintReadWrite)
 	FText Desc;
-	TObjectPtr<UTexture2D> Icon;
+	UPROPERTY(BlueprintReadWrite)
+	UTexture2D* Icon = nullptr;
+	UPROPERTY(BlueprintReadWrite)
 	double Cost;
+	UPROPERTY(BlueprintReadWrite)
 	double Health;
 
 	FBuildingData() = default;
-
 
 	FBuildingData(const FName& Name, const TSubclassOf<ABuildingBase>& BuildingClass, const TSubclassOf<UBuilderBase>& BuilderClass, const FText& Desc, double Cost, double Health)
 	{
@@ -64,55 +59,7 @@ public:
 		this->Cost = Cost;
 		this->Health = Health;
 	}
-	
 
-	// FBuildingData(const FName& Name, const TSubclassOf<ABuildingBase>& BuildingClass, const TSubclassOf<UBuilderBase>& BuilderClass, const FText& Desc, double Cost, double Health)
-	// 	: Name(Name),
-	// 	  BuildingClass(BuildingClass),
-	// 	  BuilderClass(BuilderClass),
-	// 	  Desc(Desc),
-	// 	  Cost(Cost),
-	// 	  Health(Health)
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 10, FColor::Green, TEXT("classic"));
-	// }
-
-	// FBuildingData(const FBuildingData& Other)
-	// 	: Name(Other.Name),
-	// 	  BuildingClass(Other.BuildingClass),
-	// 	  BuilderClass(Other.BuilderClass),
-	// 	  Desc(Other.Desc),
-	// 	  Cost(Other.Cost),
-	// 	  Health(Other.Health)
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 10, FColor::Green, TEXT("single"));
-	// }
-	//
-	// FBuildingData(FBuildingData&& Other) noexcept
-	// 	: Name(std::move(Other.Name)),
-	// 	  BuildingClass(std::move(Other.BuildingClass)),
-	// 	  BuilderClass(std::move(Other.BuilderClass)),
-	// 	  Desc(std::move(Other.Desc)),
-	// 	  Cost(Other.Cost),
-	// 	  Health(Other.Health)
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 10, FColor::Green, TEXT("Double noexcept"));
-	// }
-	//
-	// FBuildingData& operator=(FBuildingData&& Other) noexcept
-	// {
-	// 	if (this == &Other)
-	// 		return *this;
-	// 	Name = std::move(Other.Name);
-	// 	BuildingClass = std::move(Other.BuildingClass);
-	// 	BuilderClass = std::move(Other.BuilderClass);
-	// 	Desc = std::move(Other.Desc);
-	// 	Cost = Other.Cost;
-	// 	Health = Other.Health;
-	// 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 10, FColor::Green, TEXT("Double noexcept assign"));
-	// 	return *this;
-	// }
-	//
 	FBuildingData& operator=(const FBuildingData& Other)
 	{
 		if (this == &Other)
@@ -123,7 +70,6 @@ public:
 		Desc = Other.Desc;
 		Cost = Other.Cost;
 		Health = Other.Health;
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 10, FColor::Green, TEXT("assign signle"));
 		return *this;
 	}
 };
@@ -137,13 +83,12 @@ public:
 	void AddBuilding(ABuildingBase* Building);
 	void RemoveBuilding(ABuildingBase* Building);
 	void RenderBuildings();
-	UFUNCTION()
-	void CreateBuilder(FBuildingData& Data);
-
+	UFUNCTION(BlueprintCallable)
+	void CreateBuilder(const FBuildingData& Data);
 	UPROPERTY()
 	UBuilderBase* Builder;
 	UPROPERTY()
 	TArray<ABuildingBase*> Buildings;
-
-	bool bIsBuildingMode = false;
+	UPROPERTY(BlueprintReadWrite)
+	TMap<FString, FBuildingData> ItemDataTable;
 };

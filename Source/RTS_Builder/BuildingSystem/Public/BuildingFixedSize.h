@@ -16,16 +16,13 @@ class RTS_BUILDER_API ABuildingFixedSize : public ABuildingBase
 	GENERATED_BODY()
 public:
 	ABuildingFixedSize();
-	virtual void OnConstruction(const FTransform& Transform) override;
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-	virtual void OnRender() override;
-	virtual void DrawGrid(int32 x, int32 y) override;
-	virtual void UpdateGrid() override;
-	virtual void UpdateDuringBuilding(FVector Endloc, FHitResult& Hit) override;
-	virtual void StickToGrid(FVector& Location) override;
-	virtual void OnStartBuilding(ARTSController* Controller) override;
-	virtual void OnClick(ARTSController* Controller) override;
+	void OnConstruction(const FTransform& Transform) override;
+	void BeginPlay() override;
+	void Tick(float DeltaSeconds) override;
+	void OnRender() override;
+	void OnStartBuilding(ARTSController* Controller) override;
+	// void OnClick(ARTSController* Controller) override;
+	void AssignAssets() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComponent;

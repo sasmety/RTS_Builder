@@ -21,6 +21,7 @@
   }
 
 class UBuildingManager;
+
 UCLASS()
 class RTS_BUILDER_API UBuilderBase : public UObject, public IMouseInterface, public FTickableGameObject
 {
@@ -29,10 +30,10 @@ public:
 	UBuilderBase();
 	~UBuilderBase();
 	void OnConstruct(ARTSController Controller, BuildingType::Type Building);
-	virtual void ConstructBuilding();
-	void ExitBuilder();
-	virtual void Init(UGameManager* Manager, FBuildingData& Data);
-	void Ticker();
+	virtual void CreateBuilding();
+	virtual void Destroy();
+	virtual void Init(UGameManager* Manager, const FBuildingData& Data);
+	virtual void Build();	
 
 	virtual void LeftHold() override;
 	virtual void LeftPressed() override;
@@ -48,4 +49,5 @@ public:
 	UPROPERTY()
 	UGameManager* GameManager = nullptr;
 	FBuildingData BuildingData;
+	FHitResult Hit;
 };

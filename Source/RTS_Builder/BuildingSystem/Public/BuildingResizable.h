@@ -19,6 +19,7 @@ class RTS_BUILDER_API ABuildingResizable : public ABuildingBase
 public:
 	ABuildingResizable(const FObjectInitializer& OI);
 	virtual void BeginPlay() override;
+	void AddSplinePoint(FVector& WorldPoint);
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 	bool DidResized();
@@ -32,7 +33,6 @@ public:
 	void FindIndexBetweenPoints(USplineComponent* SplineComponent, FVector Location, int32& LowerIndex,
 	                            int32& UpperIndex);
 	virtual void OnStartBuilding(ARTSController* Controller) override;
-	virtual void Build() override;
 	void DrawPointActors(TArray<FVector>& Locations);
 	UStaticMesh* MakeMesh(TArray<FVector> locations);
 	FVector GetCurrentSplinePoint(USplineComponent* SplineComp, FVector Loc);

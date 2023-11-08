@@ -5,9 +5,9 @@
 
 #include "Components/SplineComponent.h"
 
-bool AWall::AddSplinePoint(FVector& WorldPoint)
+bool AWall::AddSplinePoint(FVector& WorldPoint, bool bShouldStore)
 {
-	return Super::AddSplinePoint(WorldPoint);
+	return Super::AddSplinePoint(WorldPoint, bShouldStore);
 }
 
 void AWall::RotatePoint(int32 Index, float Value)

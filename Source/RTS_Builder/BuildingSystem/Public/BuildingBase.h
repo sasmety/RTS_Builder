@@ -11,12 +11,12 @@
 
 class ARTSController;
 
-UENUM(BlueprintType)
-enum class EBuildingMode : uint8 {
-	BM_Follow       UMETA(DisplayName="FollowCursor"),
-	BM_StaticStart        UMETA(DisplayName="StaticStartLocation"),
-	BM_StaticLocation        UMETA(DisplayName="StaticLocation"),
-};
+// UENUM(BlueprintType)
+// enum class EBuildingMode : uint8 {
+// 	BM_Follow       UMETA(DisplayName="FollowCursor"),
+// 	BM_StaticStart        UMETA(DisplayName="StaticStartLocation"),
+// 	BM_StaticLocation        UMETA(DisplayName="StaticLocation"),
+// };
 
 UCLASS()
 class RTS_BUILDER_API ABuildingBase : public AActor
@@ -43,10 +43,14 @@ public:
 	virtual void UpdateGrid();
 	void RemoveGrid();
 	virtual void OnRender();
-	virtual void Build();
 	virtual void Update(float DeltaSeconds, FHitResult& Hit);
 	virtual void UpdateDuringBuilding(FVector Endloc, FHitResult& Hit);
 	virtual void StickToGrid(FVector& Location);
+	virtual bool CanBeBuilt();
+	virtual void SetGhostMaterial();
+	virtual void SetDefaultMaterial();
+	virtual void AssignAssets();
+	virtual void DestructBuilding(FHitResult& HitData, float size);
 	
 	APlayerController* GetPlayerController();
 	
@@ -71,8 +75,8 @@ public:
 	bool b_IsCompleted;
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Stats")
 	bool bShouldStartTicking = false;
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Stats")
-	EBuildingMode BuildingMode = EBuildingMode::BM_Follow;
+	// UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Stats")
+	// EBuildingMode BuildingMode = EBuildingMode::BM_Follow;
 	
 	
 	FVector Res;
@@ -102,6 +106,5 @@ public:
 	TArray<FProcMeshTangent> Tangents;
 
 	TObjectPtr<ARTSController> Controller;
-	
 
 };

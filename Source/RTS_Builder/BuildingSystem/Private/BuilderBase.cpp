@@ -3,10 +3,11 @@
 
 #include "RTS_Builder/BuildingSystem/Public/BuilderBase.h"
 #include "RTS_Builder/RTSController.h"
+#include "RTS_Builder/BuildingSystem/BuildingDestroyer.h"
+
 
 UBuilderBase::UBuilderBase()
 {
-		
 }
 
 UBuilderBase::~UBuilderBase()
@@ -18,24 +19,27 @@ void UBuilderBase::OnConstruct(ARTSController Controller, BuildingType::Type Bui
 
 }
 
-void UBuilderBase::ConstructBuilding()
+void UBuilderBase::CreateBuilding()
 {
 	
 }
 
-void UBuilderBase::ExitBuilder()
+void UBuilderBase::Destroy()
 {
 	GameManager->RemoveInputObject(this);
 	GameManager->BuildingManager->Builder = nullptr;
 }
 
-void UBuilderBase::Init(UGameManager* Manager, FBuildingData& Data)
+void UBuilderBase::Init(UGameManager* Manager, const FBuildingData& Data)
 {
 	GameManager = Manager;
-	GameManager->AddInputObject(this);
+	BuildingData = Data;
+	GEngine->AddOnScreenDebugMessage(46, 10, FColor::Purple, FString::Printf(TEXT("Created Builder: %s"), *GetName()));
 }
 
-void UBuilderBase::Ticker(){}
+void UBuilderBase::Build()
+{
+}
 
 void UBuilderBase::Tick(float DeltaTime)
 {
@@ -61,8 +65,15 @@ void UBuilderBase::LeftReleased()
 
 void UBuilderBase::KeyPressed(FKey Key)
 {
-	if (Key.GetDisplayName().ToString().Equals(TEXT("Escape")))
-		ExitBuilder();
+	if (Key.GetDisplayName().ToString().Equals(TEXT("Space")))
+		Destroy();
+	else if (Key.GetDisplayName().ToString().Equals(TEXT("X")))
+	{
+		GameManager->BuildingManager->Builder = NewObject<UBuildingDestroyer>();
+		GEngine->AddOnScreenDebugMessage(10, 10, FColor::Red, TEXT("DESTRUCTION MODE ACTIVATED"));
+	}
+	
+
 }
 
 bool UBuilderBase::IsTickableInEditor() const

@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "RTS_Builder/BuildingSystem/Public/Road.h"
 
 TArray<AActor*> ignorants;
 
@@ -32,6 +33,11 @@ ASplineBuilding::ASplineBuilding()
 	InstancedStaticMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>("InstancedMesh");
 	InstancedStaticMeshComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	InstancedStaticMeshComponent->SetStaticMesh(PillarMesh);
+}
+
+int32 ASplineBuilding::GetSplinePointsNum()
+{
+	return SplineComponent->GetNumberOfSplinePoints();
 }
 
 void ASplineBuilding::OnConstruction(const FTransform& Transform)
@@ -67,19 +73,20 @@ void ASplineBuilding::Update(float DeltaSeconds, FHitResult& Hit)
 	{
 		if (SplineComponent->GetNumberOfSplinePoints() > 1)
 			SplineComponent->RemoveSplinePoint(SplineComponent->GetNumberOfSplinePoints() - 1);
-		TArray<AActor*> AttachmentActors;
-		TOptional<FVector> AttachPoint = FindAttachmentPoint(Hit.Location, AttachmentActors);
-		if (AttachPoint.IsSet())
-			Hit.Location = AttachPoint.GetValue();
+		// TArray<AActor*> AttachmentActors;
+		FAttachmentData Data;
+		FVector Loc = Hit.Location;
+		FindAttachmentPoint(Loc, Data, TEXT("a"));
+		Hit.Location = Loc;
 		SplineComponent->AddSplineWorldPoint(Hit.Location);
-		ClearSplineMeshes();
-		GenerateSplineMesh(0, SplineComponent->GetNumberOfSplinePoints() - 1, Mesh);
+		// ClearSplineMeshes();
+		GenerateSplineMesh(Mesh, false);
 	}
 }
 
 void  ASplineBuilding::OnClick(FVector& Point)
 {
-	AddSplinePoint(Point);	
+	AddSplinePoint(Point, false);	
 }
 
 int32 ASplineBuilding::GetClosestPoint(FVector& WorldPoint, USplineComponent* TargetSpline)
@@ -92,42 +99,46 @@ int32 ASplineBuilding::GetClosestPoint(FVector& WorldPoint, USplineComponent* Ta
 	return TargetSpline->GetNumberOfSplinePoints() - 1;
 }
 
-TOptional<FVector> ASplineBuilding::FindAttachmentPoint(FVector& WorldPoint, TArray<AActor*>& AttachmentActors)
-{
-	TArray<FHitResult> HitResults;
-	FCollisionQueryParams CollisionQueryParams;
-	CollisionQueryParams.AddIgnoredActor(this);
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
-	UKismetSystemLibrary::BoxTraceMultiByProfile(GetWorld(), WorldPoint, WorldPoint, FVector(100, 100, 100), FRotator::ZeroRotator, FName(TEXT("splinemeshes")), true, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResults, true, FColor::Green, FColor::Red, 10);
+// TOptional<FVector> ASplineBuilding::FindAttachmentPoint(FVector& WorldPoint, TArray<AActor*>& AttachmentActors)
+// {
+// 	TArray<FHitResult> HitResults;
+// 	FCollisionQueryParams CollisionQueryParams;
+// 	CollisionQueryParams.AddIgnoredActor(this);
+// 	TArray<AActor*> ActorsToIgnore;
+// 	ActorsToIgnore.Add(this);
+// 	UKismetSystemLibrary::BoxTraceMultiByProfile(GetWorld(), WorldPoint, WorldPoint, FVector(100, 100, 100), FRotator::ZeroRotator, FName(TEXT("splinemeshes")), true, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResults, true, FColor::Green, FColor::Red, 10);
+//
+// 	TOptional<FVector> AttachPoint;
+// 	for (FHitResult& HitResult : HitResults) {
+// 		if (HitResult.bBlockingHit && HitResult.GetActor())
+// 		{
+// 			GEngine->AddOnScreenDebugMessage(11, 10, FColor::Magenta, HitResult.GetActor()->GetName());
+// 			if (HitResult.GetActor() && HitResult.GetActor()->IsA(ASplineBuilding::StaticClass()))
+// 			{
+// 				int32 index = GetClosestPoint(HitResult.Location, Cast<ASplineBuilding>(HitResult.GetActor())->SplineComponent);
+// 				if (index != -1) {
+// 					if (!AttachPoint.IsSet())
+// 						AttachPoint = Cast<ASplineBuilding>(HitResult.GetActor())->SplineComponent->GetLocationAtSplinePoint(index, ESplineCoordinateSpace::World);
+// 					AttachmentActors.Add(HitResult.GetActor());
+// 					ignorants.Add(HitResult.GetActor());
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return AttachPoint;
+// }
 
-	TOptional<FVector> AttachPoint;
-	for (FHitResult& HitResult : HitResults) {
-		if (HitResult.bBlockingHit)
-		{
-			GEngine->AddOnScreenDebugMessage(11, 10, FColor::Magenta, HitResult.GetActor()->GetName());
-			if (HitResult.GetActor() && HitResult.GetActor()->IsA(ASplineBuilding::StaticClass()))
-			{
-				int32 index = GetClosestPoint(HitResult.Location, Cast<ASplineBuilding>(HitResult.GetActor())->SplineComponent);
-				if (index != -1) {
-					if (!AttachPoint.IsSet())
-						AttachPoint = Cast<ASplineBuilding>(HitResult.GetActor())->SplineComponent->GetLocationAtSplinePoint(index, ESplineCoordinateSpace::World);
-					AttachmentActors.Add(HitResult.GetActor());
-					ignorants.Add(HitResult.GetActor());
-				}
-			}
-		}
-	}
-	return AttachPoint;
+bool ASplineBuilding::FindAttachmentPoint(FVector& WorldPoint, FAttachmentData& Data, FString type)
+{
+	return false;
 }
 
-bool ASplineBuilding::AddSplinePoint(FVector& WorldPoint)
+bool ASplineBuilding::AddSplinePoint(FVector& WorldPoint, bool bShouldStore)
 {
-	TArray<AActor*> Attachment;
-	TOptional<FVector> Opt = FindAttachmentPoint(WorldPoint, Attachment);
-	if (Opt.IsSet())
-		WorldPoint = Opt.GetValue();
-	SplineComponent->AddSplineWorldPoint(WorldPoint);
+	FAttachmentData Data;
+	FVector Location = WorldPoint;
+	FindAttachmentPoint(Location, Data, TEXT("a"));
+	SplineComponent->AddSplineWorldPoint(Location);
 	SplineComponent->UpdateSpline();
 
 	if (SplineComponent->GetNumberOfSplinePoints() > 1)
@@ -190,24 +201,15 @@ void ASplineBuilding::RotatePoint(int32 Index, float Value)
 {
 }
 
-void ASplineBuilding::GenerateSplineMesh(int32 TargetStartIndex, int32 TargetEndIndex, UStaticMesh* StaticMesh)
+void ASplineBuilding::GenerateSplineMesh(UStaticMesh* StaticMesh, bool bUseStoredMeshes)
 {
-	if (TargetEndIndex < TargetStartIndex)
-	{
-		int32 temp = TargetEndIndex;
-		TargetEndIndex = TargetStartIndex; 
-		TargetStartIndex = temp;
-	}
-	if (SplineComponent->GetNumberOfSplinePoints() < TargetEndIndex + 1 || TargetStartIndex < 0 || TargetEndIndex < 0 || TargetStartIndex == TargetEndIndex)
-		return;
-
 	FBoxSphereBounds Box = StaticMesh->GetBounds();
 	float MeshLength = Box.BoxExtent.X * 2;
 	
-	for (int i = TargetStartIndex; i < TargetEndIndex ; ++i)
+	for (int i = 0; i < SplineComponent->GetNumberOfSplinePoints() - 1 ; ++i)
 	{
 		float StartDistance = 0;
-		float SegmentLength = SplineComponent->GetSplineLength() - 1;
+		float SegmentLength = SplineComponent->GetDistanceAlongSplineAtSplinePoint(i + 1) - SplineComponent->GetDistanceAlongSplineAtSplinePoint(i);
 		GEngine->AddOnScreenDebugMessage(89, 20, FColor::Green, FString::Printf(TEXT("Dist: %f"), SegmentLength));
 
 		// SegmentLength = SplineComponent->GetSplineLength() - 1;
@@ -255,7 +257,7 @@ void ASplineBuilding::GenerateSplineMesh(int32 TargetStartIndex, int32 TargetEnd
 
 void ASplineBuilding::ClearSpline()
 {
-	for (UActorComponent* Component : GetComponents())
+	for (auto Component : GetComponents())
 		if (Component->IsA(USplineMeshComponent::StaticClass()))
 			Component->DestroyComponent();
 	SplineComponent->ClearSplinePoints();
@@ -263,10 +265,11 @@ void ASplineBuilding::ClearSpline()
 
 void ASplineBuilding::ClearSplineMeshes()
 {
-	for (UActorComponent* Component : GetComponents())
+	for (auto Component : GetComponents())
 		if (Component->IsA(USplineMeshComponent::StaticClass()))
 			Component->DestroyComponent();
 	InstancedStaticMeshComponent->ClearInstances();
+	
 }
 
 bool ASplineBuilding::SnapSplineToLandscape(float Start, float End, float Interval, USplineComponent* SplineComp, TArray<FVector>& OutArray)
@@ -439,9 +442,6 @@ TArray<FVector> ASplineBuilding::FindPathBetweenPoints(const FVector& StartCoord
 					DrawDebugString(GetWorld(), PointOnNav + FVector::UpVector * (i % 2) * -50, FString::Printf(TEXT("arriveDir: %s targetDir: %s"),
 						*(Firstdiff.ToString()), *SecondDiff.ToString()), 0, Color, 0);
 				}
-
-
-
 			}
 			AdjustedZ = PointOnNav.Z;
 			End.Z = AdjustedZ;

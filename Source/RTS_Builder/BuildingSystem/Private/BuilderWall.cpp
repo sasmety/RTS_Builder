@@ -14,22 +14,29 @@ UBuilderWall::UBuilderWall()
 {
 }
 
-void UBuilderWall::Init(UGameManager* Manager, FBuildingData& Data)
+void UBuilderWall::Init(UGameManager* Manager, const FBuildingData& Data)
 {
 	Super::Init(Manager, Data);
 	BuildingData = Data;
-	ConstructBuilding();
+	CreateBuilding();
+	GEngine->AddOnScreenDebugMessage(47, 10, FColor::Yellow, FString::Printf(TEXT("Created Builder: Wall")));
 }
 
 
-void UBuilderWall::ConstructBuilding()
+void UBuilderWall::CreateBuilding()
 {
-	if (Hit.bBlockingHit && GameManager)
+	if (GameManager)
 	{
 		FActorSpawnParameters ActorSpawnParameters;
-		CurrentBuilding = GameManager->GetWorld()->SpawnActor<AWall>(BuildingData.BuildingClass->StaticClass(), Hit.Location, FRotator::ZeroRotator, ActorSpawnParameters);
-		CurrentBuilding->SetActorTickEnabled(true);
+		CurrentBuilding = GameManager->GetWorld()->SpawnActor<AWall>(BuildingData.BuildingClass, Hit.Location, FRotator::ZeroRotator, ActorSpawnParameters);
+		// CurrentBuilding->SetActorTickEnabled(true);
 	}
+}
+
+void UBuilderWall::Destroy()
+{
+	Super::Destroy();
+	CurrentBuilding->Destroy();
 }
 
 void UBuilderWall::Tick(float DeltaSeconds)
@@ -37,7 +44,7 @@ void UBuilderWall::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	if (GameManager && GameManager->GetController())
 	{
-		bool bHit = GameManager->GetController()->CursorHit(ECC_GameTraceChannel1, TArray<AActor*>(), Hit);
+		bool bHit = GameManager->GetController()->CursorHit(ECC_GameTraceChannel1, TArray<AActor*>(), Hit, EDrawDebugTrace::None);
 
 		if (CurrentBuilding)
 		{
@@ -51,13 +58,13 @@ void UBuilderWall::LeftPressed()
 {
 	Super::LeftPressed();
 	if (CurrentBuilding == nullptr)
-		ConstructBuilding();
+		CreateBuilding();
 
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5, FColor::Yellow, TEXT("CLICKED"));
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5, FColor::Yellow, TEXT("WallClick"));
 	
 	if (CurrentBuilding && GameManager)
 	{
-		bool isCompleted = CurrentBuilding->AddSplinePoint(Hit.Location);
+		bool isCompleted = CurrentBuilding->AddSplinePoint(Hit.Location, false);
 		if (isCompleted)
 		{
 			GameManager->BuildingManager->AddBuilding(CurrentBuilding);

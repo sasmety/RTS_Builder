@@ -11,7 +11,7 @@
 UBuilderBase* UBuilderFactory::CreateBuilder(FBuildingData Data)
 {
 	
-	UBuilderBase* Builder = NewObject<UBuilderBase>(Data.BuilderClass);
+	UBuilderBase* Builder = NewObject<UBuilderBase>(this, Data.BuilderClass);
 	Builder->Init(Cast<UGameManager>(UGameplayStatics::GetGameInstance(GetWorld())), Data);
 	return Builder;
 }

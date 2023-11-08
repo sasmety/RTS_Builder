@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Public/BuilderBase.h"
+#include "BuildingFixedSize.h"
+#include "RTS_Builder/BuildingSystem/Public/BuilderBase.h"
 #include "UObject/Object.h"
 #include "BuilderStatic.generated.h"
 
@@ -16,9 +17,11 @@ class RTS_BUILDER_API UBuilderStatic : public UBuilderBase
 	GENERATED_BODY()
 
 public:
-	virtual void ConstructBuilding() override;
-	virtual void Init(UGameManager* Manager, FBuildingData& Data) override;
+	virtual void CreateBuilding() override;
+	virtual void Init(UGameManager* Manager, const FBuildingData& Data) override;
 	virtual void LeftHold() override;
+	void Build() override;
+	void Destroy() override;
 	virtual void LeftPressed() override;
 	virtual void LeftReleased() override;
 	virtual void KeyPressed(FKey Key) override;
@@ -27,4 +30,7 @@ public:
 	bool IsTickableInEditor() const override;
 	bool IsTickableWhenPaused() const override;
 	TStatId GetStatId() const override;
+
+	UPROPERTY()
+	ABuildingFixedSize* CurrentBuilding = nullptr;
 };
